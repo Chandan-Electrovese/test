@@ -7,7 +7,7 @@ on:
 env:
   AWS_REGION: us-east-1                       
   EC2_INSTANCE_IP: 54.162.145.166              # Replace with your EC2 instance's public IP address
-  EC2_USER: ubuntu                              # Ensure this is the correct user for your instance
+  EC2_USER: github-actions-user                              # Ensure this is the correct user for your instance
   REPOSITORY: https://github.com/Chandan-Electrovese/test.git  
   DEPLOY_PATH: test                             # The path on the EC2 instance where you want to deploy
 
@@ -54,4 +54,3 @@ jobs:
             echo "Starting application..."
             npm start  # or your command to start the application
           EOF || { echo "SSH command failed"; exit 1; }
-          

@@ -38,10 +38,10 @@ jobs:
           chmod 600 /tmp/id_rsa
           echo "SSH key prepared. Ready for connection."
 
-      - name: Copy files to EC2 instance
-        run: |
-          echo "Copying files to EC2 instance..."
-          scp -i /tmp/id_rsa -o StrictHostKeyChecking=no -r ./* ${EC2_USER}@${EC2_INSTANCE_IP}:${DEPLOY_PATH} || { echo "SCP failed"; exit 1; }
+      # - name: Copy files to EC2 instance
+      #   run: |
+      #     echo "Copying files to EC2 instance..."
+      #     scp -i /tmp/id_rsa -o StrictHostKeyChecking=no -r ./* ${EC2_USER}@${EC2_INSTANCE_IP}:${DEPLOY_PATH} || { echo "SCP failed"; exit 1; }
 
       - name: SSH into EC2 and run application 
         run: |

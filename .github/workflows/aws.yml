@@ -97,14 +97,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Copy files to EC2 instance
-        run: |
-          # Ensure you have SSH key added to GitHub secrets (EC2_SSH_KEY)
-          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/id_rsa
-          chmod 600 /tmp/id_rsa
+      # - name: Copy files to EC2 instance
+      #   run: |
+      #     # Ensure you have SSH key added to GitHub secrets (EC2_SSH_KEY)
+      #     echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/id_rsa
+      #     chmod 600 /tmp/id_rsa
           
-          # Use SCP to copy files to the EC2 instance
-          scp -i /tmp/id_rsa -o StrictHostKeyChecking=no -r ./* ${EC2_USER}@${EC2_INSTANCE_IP}:${DEPLOY_PATH}
+      #     # Use SCP to copy files to the EC2 instance
+      #     scp -i /tmp/id_rsa -o StrictHostKeyChecking=no -r ./* ${EC2_USER}@${EC2_INSTANCE_IP}:${DEPLOY_PATH}
 
       - name: SSH into EC2 and run application
         run: |

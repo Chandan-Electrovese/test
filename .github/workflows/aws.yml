@@ -1,69 +1,3 @@
-# name: Deploy to Amazon ECS
-
-# on:
-#   push:
-#     branches: [ "main" ]
-
-# env:
-#   AWS_REGION: us-east-1                      # Set your preferred AWS region
-#   ECR_REPOSITORY: my-ecr-repo                # Replace with your ECR repository name
-#   ECS_SERVICE: my-ecs-service                 # Replace with your ECS service name
-#   ECS_CLUSTER: my-ecs-cluster                 # Replace with your ECS cluster name
-#   ECS_TASK_DEFINITION: .aws/task-definition.json # Path to your ECS task definition
-#   CONTAINER_NAME: my-container                # Container name in the task definition
-
-# permissions:
-#   contents: read
-
-# jobs:
-#   deploy:
-#     name: Deploy
-#     runs-on: ubuntu-latest
-#     environment: production
-
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v4
-
-#       - name: Configure AWS credentials
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: us-east-1
-
-#       - name: Login to Amazon ECR
-#         id: login-ecr
-#         uses: aws-actions/amazon-ecr-login@v1
-
-#       - name: Build, tag, and push image to Amazon ECR
-#         id: build-image
-#         env:
-#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#           IMAGE_TAG: ${{ github.sha }}
-#         run: |
-#           # Build a docker container and push it to ECR
-#           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-#           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-#           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-#       - name: Fill in the new image ID in the Amazon ECS task definition
-#         id: task-def
-#         uses: aws-actions/amazon-ecs-render-task-definition@v1
-#         with:
-#           task-definition: ${{ env.ECS_TASK_DEFINITION }}
-#           container-name: ${{ env.CONTAINER_NAME }}
-#           image: ${{ steps.build-image.outputs.image }}
-
-#       - name: Deploy Amazon ECS task definition
-#         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#         with:
-#           task-definition: ${{ steps.task-def.outputs.task-definition }}
-#           service: ${{ env.ECS_SERVICE }}
-#           cluster: ${{ env.ECS_CLUSTER }}
-#           wait-for-service-stability: true
-
-
 name: Deploy to EC2
 
 on:
@@ -71,11 +5,11 @@ on:
     branches: [ "main" ]
 
 env:
-  AWS_REGION: us-east-1                        # Set your preferred AWS region
-  EC2_INSTANCE_IP: your_ec2_instance_ip        # Replace with your EC2 instance's public IP address
-  EC2_USER: ec2-user                            # Replace with your EC2 instance user (e.g., ec2-user, ubuntu)
-  REPOSITORY: your_github_repository            # Replace with your GitHub repository URL
-  DEPLOY_PATH: test                  # The path on the EC2 instance where you want to deploy
+  AWS_REGION: us-east-1                       
+  EC2_INSTANCE_IP: 54.162.145.166            # Replace with your EC2 instance's public IP address
+  EC2_USER: ubuntu                            # Default username for Ubuntu instances
+  REPOSITORY: https://github.com/Chandan-Electrovese/test.git  
+  DEPLOY_PATH: test                           # The path on the EC2 instance where you want to deploy
 
 permissions:
   contents: read
@@ -97,18 +31,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # - name: Copy files to EC2 instance
-      #   run: |
-      #     # Ensure you have SSH key added to GitHub secrets (EC2_SSH_KEY)
-      #     echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/id_rsa
-      #     chmod 600 /tmp/id_rsa
+      - name: Copy files to EC2 instance
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/id_rsa
+          chmod 600 /tmp/id_rsa
           
-      #     # Use SCP to copy files to the EC2 instance
-      #     scp -i /tmp/id_rsa -o StrictHostKeyChecking=no -r ./* ${EC2_USER}@${EC2_INSTANCE_IP}:${DEPLOY_PATH}
+          # Use SCP to copy files to the EC2 instance
+          scp -i /tmp/id_rsa -o StrictHostKeyChecking=no -r ./* ${EC2_USER}@${EC2_INSTANCE_IP}:${DEPLOY_PATH}
 
       - name: SSH into EC2 and run application
         run: |
-          # SSH into the EC2 instance and run your application
           ssh -i /tmp/id_rsa -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_INSTANCE_IP} << 'EOF'
             # Navigate to the deploy path
             cd ${DEPLOY_PATH}

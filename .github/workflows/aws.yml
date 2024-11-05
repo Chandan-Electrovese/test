@@ -75,7 +75,7 @@ env:
   EC2_INSTANCE_IP: your_ec2_instance_ip        # Replace with your EC2 instance's public IP address
   EC2_USER: ec2-user                            # Replace with your EC2 instance user (e.g., ec2-user, ubuntu)
   REPOSITORY: your_github_repository            # Replace with your GitHub repository URL
-  DEPLOY_PATH: /path/to/deploy                  # The path on the EC2 instance where you want to deploy
+  DEPLOY_PATH: test                  # The path on the EC2 instance where you want to deploy
 
 permissions:
   contents: read
@@ -99,8 +99,8 @@ jobs:
 
       - name: Copy files to EC2 instance
         run: |
-          # Ensure you have SSH key added to GitHub secrets (AWS_EC2_SSH_KEY)
-          echo "${{ secrets.AWS_EC2_SSH_KEY }}" > /tmp/id_rsa
+          # Ensure you have SSH key added to GitHub secrets (EC2_SSH_KEY)
+          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/id_rsa
           chmod 600 /tmp/id_rsa
           
           # Use SCP to copy files to the EC2 instance

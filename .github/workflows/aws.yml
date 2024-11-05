@@ -6,10 +6,10 @@ on:
 
 env:
   AWS_REGION: us-east-1                       
-  EC2_INSTANCE_IP: 54.162.145.166            # Replace with your EC2 instance's public IP address
-  EC2_USER: ubuntu                            # Default username for Ubuntu instances
+  EC2_INSTANCE_IP: 54.162.145.166              # Replace with your EC2 instance's public IP address
+  EC2_USER: ubuntu                              # Ensure this is the correct user for your instance
   REPOSITORY: https://github.com/Chandan-Electrovese/test.git  
-  DEPLOY_PATH: test                           # The path on the EC2 instance where you want to deploy
+  DEPLOY_PATH: test                             # The path on the EC2 instance where you want to deploy
 
 permissions:
   contents: read
@@ -31,21 +31,26 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Copy files to EC2 instance
+      - name: Prepare SSH key
         run: |
+          echo "Preparing SSH key for connection... ${{ secrets.EC2_SSH_KEY }}"
           echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/id_rsa
           chmod 600 /tmp/id_rsa
-          
-          # Use SCP to copy files to the EC2 instance
-          scp -i /tmp/id_rsa -o StrictHostKeyChecking=no -r ./* ${EC2_USER}@${EC2_INSTANCE_IP}:${DEPLOY_PATH}
+          echo "SSH key prepared. Ready for connection."
+
+      - name: Copy files to EC2 instance
+        run: |
+          echo "Copying files to EC2 instance..."
+          scp -i /tmp/id_rsa -o StrictHostKeyChecking=no -r ./* ${EC2_USER}@${EC2_INSTANCE_IP}:${DEPLOY_PATH} || { echo "SCP failed"; exit 1; }
 
       - name: SSH into EC2 and run application
         run: |
+          echo "Connecting to EC2 instance to run application..."
           ssh -i /tmp/id_rsa -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_INSTANCE_IP} << 'EOF'
-            # Navigate to the deploy path
+            set -e  # Exit on error
             cd ${DEPLOY_PATH}
-            # Install dependencies (if applicable, e.g., for Node.js)
+            echo "Installing dependencies..."
             npm install  # or your specific installation command
-            # Start your application
+            echo "Starting application..."
             npm start  # or your command to start the application
-          EOF
+          EOF || { echo "SSH command failed"; exit 1; }

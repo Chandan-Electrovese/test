@@ -12,7 +12,6 @@ app.get('/', (req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
-  const host = process.env.HOST || 'localhost'; // You can set this in your .env if needed
-  console.log(`Server is running on http://${host}:${port}`);
-});
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server is running on http://0.0.0.0:${port}`);
+  });

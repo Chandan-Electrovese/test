@@ -43,7 +43,7 @@ jobs:
           echo "Copying files to EC2 instance..."
           scp -i /tmp/id_rsa -o StrictHostKeyChecking=no -r ./* ${EC2_USER}@${EC2_INSTANCE_IP}:${DEPLOY_PATH} || { echo "SCP failed"; exit 1; }
 
-      - name: SSH into EC2 and run application
+      - name: SSH into EC2 and run application 
         run: |
           echo "Connecting to EC2 instance to run application..."
           ssh -i /tmp/id_rsa -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_INSTANCE_IP} << 'EOF'
@@ -54,3 +54,4 @@ jobs:
             echo "Starting application..."
             npm start  # or your command to start the application
           EOF || { echo "SSH command failed"; exit 1; }
+          
